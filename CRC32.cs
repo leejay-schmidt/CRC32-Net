@@ -1,11 +1,9 @@
-using System;
-
-namespace CRC32 {
+namespace CRC32Net {
     public class CRC32 {
 
         public ulong Value { get; private set; }
 
-        static readonly ulong[] CRCTable = new ulong[256] {
+        static readonly ulong[] CRCTable = {
             0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
             0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
             0xe0d5e91eL, 0x97d2d988L, 0x09b64c2bL, 0x7eb17cbdL, 0xe7b82d07L,
@@ -80,12 +78,12 @@ namespace CRC32 {
             int bufIdx = 0;
             while (len >= 8) {
                 for (int i = 0; i < 8; ++i) {
-                    crc = CRCTable[(((int)crc) ^ ((int)(buf[bufIdx++]))) & 0xff] ^ (crc >> 8);
+                    crc = CRCTable[(((int)crc) ^ (buf[bufIdx++])) & 0xff] ^ (crc >> 8);
                 }
                 len -=8;
             }
             if (len > 0) do {
-                crc = CRCTable[(((int)crc) ^ ((int)(buf[bufIdx++]))) & 0xff] ^ (crc >> 8);
+                crc = CRCTable[(((int)crc) ^ (buf[bufIdx++])) & 0xff] ^ (crc >> 8);
             } while ((--len) > 0);
             return crc ^ 0xffffffff;
         }    
