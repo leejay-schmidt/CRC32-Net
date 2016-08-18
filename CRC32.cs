@@ -80,34 +80,41 @@ namespace CRC32Net {
             0x5d681b02L, 0x2a6f2b94L, 0xb40bbe37L, 0xc30c8ea1L, 0x5a05df1bL,
             0x2d02ef8dL
         };
-        
+              
         public CRC32() {
+            //initialize crc value to 0 by default
             Value = 0;
         }
 
         public CRC32(ulong seed) {
+            //initialize value with the seed given by user
             Value = seed;
         }
 
         public ulong Update(byte[] buf, int len) {
+            //calculate the new CRC on the internal value of the crc (current value)
+            //This method allows tracking of CRC without the user having to manage
+            //the variable on their own
             return Value = CalcCRC32(Value, buf, len);
         }
 
         static ulong CalcCRC32(ulong crc, byte[] buf, int len) {
+            //immediately return 0 if null/empty buffer is provided
             if (buf == null || buf.Length == 0) {
                 return 0;
             }
+            //initial xor
             crc = crc ^ 0xffffffff;
+            //start processing at beginning of buffer
             int bufIdx = 0;
-            while (len >= 8) {
-                for (int i = 0; i < 8; ++i) {
-                    crc = CRCTable[(((int)crc) ^ (buf[bufIdx++])) & 0xff] ^ (crc >> 8);
-                }
-                len -=8;
-            }
-            if (len > 0) do {
+            //until length is 0, calculate the CRC
+            //leverage LUT for speed
+            //do-while with decrement on len minimizes extra variable churn and is faster
+            //than an increment
+            do {
                 crc = CRCTable[(((int)crc) ^ (buf[bufIdx++])) & 0xff] ^ (crc >> 8);
             } while ((--len) > 0);
+            //final xor
             return crc ^ 0xffffffff;
         }    
 
